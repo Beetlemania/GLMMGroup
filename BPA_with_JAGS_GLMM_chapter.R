@@ -1,5 +1,6 @@
 #########################################################################
 # GLMM Group 2016
+# Code for Chapter 4. Introduction to GLMM
 #########################################################################
 #
 # BPA with JAGS
@@ -18,24 +19,28 @@
 rm(list = ls())
 
 # Load packages
-library(lattice)
-library(coda)
-library(R2WinBUGS)
-library(R2jags)
+my.packages <- c("lattice", "coda", "R2WinBUGS", "R2jags", "lme4",
+                 "RCurl", "foreign", "tidyr")
+lapply(my.packages, require, character.only = TRUE)
 
 #########################################################################
 
-# Make sure that you have installed JAGS version 3.2.0
+## Load falcons and tits datasets directly from github
+## (This way, we don't have to change working directories, when working on the same code, I think)
+# Falcons dataset
+url <- "https://raw.githubusercontent.com/Beetlemania/GLMMGroup/master/falcons.txt"
+# Use the same name for the data.frame object as in code below
+peregrine <- getURL(url) %>% textConnection() %>% read.table(., header = TRUE)
 
-#setwd("C:/Users/Adam/Documents/GitHub/GLMMGroup")     # Optional
-
+# Tits dataset
+url <- "https://raw.githubusercontent.com/Beetlemania/GLMMGroup/master/tits.txt"
+tits <- getURL(url) %>% textConnection() %>% read.table(., header = TRUE)
 
 ############################################################################
 #
 # 4. Introduction to random effects: Conventional Poisson GLMM for count data
 #
 ##############################################################################
-library(lme4)
 
 # 4.1. Introduction
 # 4.1.1. An example
@@ -89,7 +94,6 @@ data.fn <- function(n = 40, alpha = 3.5576, beta1 = -0.0912, beta2 = 0.0091, bet
 
 data <- data.fn()
 
-library(lme4)
 yr <- factor(data$year)         # Create a factor year
 glmm.fit <- lmer(C ~ (1 | yr) + year + I(year^2) + I(year^3), family = poisson, data = data)
 
