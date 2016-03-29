@@ -20,7 +20,7 @@ rm(list = ls())
 
 # Load packages
 my.packages <- c("lattice", "coda", "R2WinBUGS", "R2jags", "lme4",
-                 "RCurl", "foreign", "tidyr")
+                 "RCurl", "foreign", "tidyr", "rjags")
 lapply(my.packages, require, character.only = TRUE)
 
 #########################################################################
@@ -35,6 +35,7 @@ peregrine <- getURL(url) %>% textConnection() %>% read.table(., header = TRUE)
 # Tits dataset
 url <- "https://raw.githubusercontent.com/Beetlemania/GLMMGroup/master/tits.txt"
 tits <- getURL(url) %>% textConnection() %>% read.table(., header = TRUE)
+
 
 ############################################################################
 #
@@ -59,9 +60,9 @@ abline(lm$coef[3], lm$coef[4], col = "green", lwd = 3, lty = 2)
 # Fit mixed model, print random effects and plot regression lines
 summary(lmm <- lmer(mass ~ length + (1|pop)))
 ranef(lmm)
-abline((lmm@fixef[1]+ranef(lmm)$pop)[1,], lmm@fixef[2], col = "red", lwd = 3)
-abline((lmm@fixef[1]+ranef(lmm)$pop)[2,], lmm@fixef[2], col = "blue", lwd = 3)
-abline((lmm@fixef[1]+ranef(lmm)$pop)[3,], lmm@fixef[2], col = "green", lwd = 3)
+abline((fixef(lmm)[1]+ranef(lmm)$pop)[1,], fixef(lmm)[2], col = "red", lwd = 3)
+abline((fixef(lmm)[1]+ranef(lmm)$pop)[2,], fixef(lmm)[2], col = "blue", lwd = 3)
+abline((fixef(lmm)[1]+ranef(lmm)$pop)[3,], fixef(lmm)[2], col = "green", lwd = 3)
 
 
 # 4.2. Accounting for overdispersion by random effects-modeling in R and WinBUGS
