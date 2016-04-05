@@ -1,17 +1,30 @@
 # Intent: Simulate GLMM data
-simulateGLMM<-function(ngroup=2, nblock=4, nsample=140, alpha=7, beta1=.05, sd=.01){
+simulateGLMM<-function(ngroup=2, nblock=4, nsample=140, alpha=7, sd.beta=2, sd=.01){
   
   # generate values of group covariate
   group <-1:ngroup
+  
+   # generate blocking
+  block<-1:nblock
+  
+  # generate betas
+  beta<-rnorm(n=ngroup,mean=0,sd=sd.beta)
+  
+  data<- data.frame(Group=rep(group, (nsample/ngroup)) , Block= rep(block,(nsample/nblock)), Y=NA)
   
   # generate random effect of block
   r.block <-rnorm(n=nblock,mean=0,sd=sd)
   
   eta<-exp(alpha+beta1*group+r.block)
   
-  Y<-rpois(nsample, lambda=eta) 
+  data$Y<-rpois(nsample, lambda=eta) 
   
-  return(list(ngroup=ngroup, nblock=nblock, alpha=alpha, beta1=beta1, sd=sd, eta=eta, Y=Y))
+  return(list(data=data, alpha=alpha, beta=beta, r.block=r.block)) 
     }
 
-simulateGLMM()
+sim.glm<-simulateGLMM()
+
+library(lme4)
+sim.glm$data$Group <-factor(sim.glm$data$Group)
+glmm.fit <-glmer(Y~Group+(1|Block),family="poisson", data=sim.glm$data)
+summary(glmm.fit)
