@@ -1,5 +1,8 @@
 # Intent: Simulate GLMM data
-simulateGLMM<-function(ngroup=2, nblock=4, nsample=140, alpha=7, sd.beta=2, sd=.01){
+simulateGLMM<-function(ngroup=2, nblock=4, alpha=7, sd.beta=2, sd=.01){
+  
+   # generate numbers of samples
+  nsample<-ngroup*nblock*100 
   
   # generate values of group covariate
   group <-1:ngroup
@@ -15,11 +18,11 @@ simulateGLMM<-function(ngroup=2, nblock=4, nsample=140, alpha=7, sd.beta=2, sd=.
   # generate random effect of block
   r.block <-rnorm(n=nblock,mean=0,sd=sd)
   
-  eta<-exp(alpha+beta1*group+r.block)
+  eta<-exp(alpha+beta*group+r.block)
   
   data$Y<-rpois(nsample, lambda=eta) 
   
-  return(list(data=data, alpha=alpha, beta=beta, r.block=r.block)) 
+  return(list(data=data, nsample=nsample, alpha=alpha, beta=beta, r.block=r.block)) 
     }
 
 sim.glm<-simulateGLMM()
