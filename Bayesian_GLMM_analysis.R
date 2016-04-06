@@ -15,10 +15,10 @@ countData <- countDataList[[2]]
 # Remove NAs from covariates
 countData <- dplyr::filter(countData, !is.na(aet) & !is.na(cwd) & !is.na(tmn) & !is.na(tmx))
 
-### There are too many zeros (zero-inflated data)
-### In future iterations, could model zero-inflated Poisson distribution
-### For now, just subsample zeros (absences)
-### Use SDM rule-of-thumb of absences = 10*presences
+#### There are too many zeros (zero-inflated data)
+## In future iterations, could model zero-inflated Poisson distribution
+## For now, just subsample zeros (absences)
+## Use SDM rule-of-thumb: absences = 10*presences
 
 # Data with detections
 detections <- countData[countData$count > 0,]
@@ -99,7 +99,7 @@ sink()
 
 #### Specifications of JAGS run
 # Initial values
-# Specify initial values for mu.alpha, sigma.alpha, and beta1
+# Specify initial values for mu.alpha, sigma.alpha, and betas
 inits <- function() list(mu.alpha = runif(1, -3, 3),
                          sigma.alpha = runif(1, 0, 5),
                   			 beta1 = runif(1, -3, 3),
@@ -113,10 +113,7 @@ inits <- function() list(mu.alpha = runif(1, -3, 3),
 # Monitored parameters
 params <- c('beta1', 'beta2', 'beta3', 'beta4', 'beta5', 'beta6', 'beta7', 'beta8')
 # MCMC specifications
-ni=1000; nt=10; nc=3
-# for jags.parfit(), burn-in iterations = n.adapt + n.update
-n.adapt <- 5; n.update <- 5
-nb <- n.adapt + n.update
+ni=31000; nt=10; nc=3; nb=1000 
 
 #### Non-parallel jags()
 glmmOutput <- jags(data = jagsGLMMdata, 
@@ -126,25 +123,27 @@ glmmOutput <- jags(data = jagsGLMMdata,
                    n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                    working.directory = getwd())    
 
+print(glmmOutput)
 
-#### Parallel JAGS
-# Make a SOCK cluster using snow
-cl <- makeCluster(3, type = "SOCK")
-date()
-# Call to jags.parfit
-glmmOutput <- jags.parfit(cl, data = jagsGLMMdata,
-                            params = params,
-                            model = "climate_glmm_model.jags",
-                            inits = inits,
-                            n.adapt = n.adapt, n.update = n.update,
-                            n.iter = ni, thin = nt, n.chains = nc)
-date()
-stopCluster(cl) # Close the cluster
+
+#### Parallel JAGS, for running on computer cluster
+# # Make a SOCK cluster using snow
+# cl <- makeCluster(3, type = "SOCK")
+# date()
+# # Call to jags.parfit
+# glmmOutput <- jags.parfit(cl, data = jagsGLMMdata,
+#                             params = params,
+#                             model = "climate_glmm_model.jags",
+#                             inits = inits,
+#                             n.adapt = n.adapt, n.update = n.update,
+#                             n.iter = ni, thin = nt, n.chains = nc)
+# date()
+# stopCluster(cl) # Close the cluster
 #### Compute statistics and save output
-saveRDS(glmmOutput, file = "climate_glmm_jags_out_full.rds")
-glmmdctab <- dctable(glmmOutput)
-glmmResults <- data.frame(rbindlist(glmmdctab))
-row.names(glmmResults) <- names(glmmdctab)
-saveRDS(glmmResults, file = "climate_glmm_jags_out_params.rds")
-print("SUCCESS!")
+# saveRDS(glmmOutput, file = "climate_glmm_jags_out_full.rds")
+# glmmdctab <- dctable(glmmOutput)
+# glmmResults <- data.frame(rbindlist(glmmdctab))
+# row.names(glmmResults) <- names(glmmdctab)
+# saveRDS(glmmResults, file = "climate_glmm_jags_out_params.rds")
+
 
