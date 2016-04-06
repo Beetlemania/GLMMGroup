@@ -85,7 +85,7 @@ cat("
     # Likelihood
     for (i in 1:nlist){ # i = events (year-months)
       for(j in 1:nsite) { # j = sites
-        detectionMatrix[i,j] ~ dpois(lambda[i,j])  # Distribution for response
+        countMatrix[i,j] ~ dpois(lambda[i,j])  # Distribution for response
         log(lambda[i,j]) <- beta1*year[i,j] + beta2*month[i,j] + beta3*pow(month[i,j],2) + # link function and temporal effects
                            beta4*list_length[i,j] +  # list length effect
                            beta5*aet[i,j] + beta6*cwd[i,j] + beta7*tmn[i,j] + beta8*tmx[i,j] + # climate effects
