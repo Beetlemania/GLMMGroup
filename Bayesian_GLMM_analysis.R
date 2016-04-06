@@ -58,8 +58,8 @@ jagsGLMMdata <- list(countMatrix = countMatrix,
 
 
 ################################################################################
-#### Binomial GLMM Model specification
-sink("climate_glmm_model.jags")
+#### Poisson GLMM Model specification
+sink("potato_psyllid_glmm_model.jags")
 cat("
     model {    
     ## Priors
@@ -71,28 +71,25 @@ cat("
     mu.alpha ~ dnorm(0, 0.001)
     tau.alpha <- 1 / (sigma.alpha * sigma.alpha)
     sigma.alpha ~ dunif(0, 5)
-    
-    # Grand mean
-    mu ~ dnorm(0, 0.01)
 
     # For the fixed effect coefficients
-    beta1 ~ dnorm(0, 0.001)
-    beta2 ~ dnorm(0, 0.001)
-    beta3 ~ dnorm(0, 0.001)
-    beta4 ~ dnorm(0, 0.001)
-    beta5 ~ dnorm(0, 0.001)
-    beta6 ~ dnorm(0, 0.001)
-    beta7 ~ dnorm(0, 0.001)
-    beta8 ~ dnorm(0, 0.001)
+    beta1 ~ dnorm(0, 0.001) # year
+    beta2 ~ dnorm(0, 0.001) # month linear
+    beta3 ~ dnorm(0, 0.001) # month quadratic
+    beta4 ~ dnorm(0, 0.001) # list length
+    beta5 ~ dnorm(0, 0.001) # aet
+    beta6 ~ dnorm(0, 0.001) # cwd
+    beta7 ~ dnorm(0, 0.001) # tmn
+    beta8 ~ dnorm(0, 0.001) # tmx
 
     # Likelihood
     for (i in 1:nlist){ # i = events (year-months)
       for(j in 1:nsite) { # j = sites
-        detectionMatrix[i,j] ~ dbern(p[i,j])  # Distribution for random part
-        logit(p[i,j]) <- mu + beta1*year[i,j] + beta2*month[i,j] + beta3*pow(month[i,j],2) +
-                          beta4*list_length[i,j] + 
-                          beta5*aet[i,j] + beta6*cwd[i,j] + beta7*tmn[i,j] + beta8*tmx[i,j] +
-			  alpha[j]
+        detectionMatrix[i,j] ~ dpois(lambda[i,j])  # Distribution for response
+        log(lambda[i,j]) <- beta1*year[i,j] + beta2*month[i,j] + beta3*pow(month[i,j],2) + # link function and temporal effects
+                           beta4*list_length[i,j] +  # list length effect
+                           beta5*aet[i,j] + beta6*cwd[i,j] + beta7*tmn[i,j] + beta8*tmx[i,j] + # climate effects
+			                     alpha[j] # random intercepts (one for each spatial cell)
       } #j
     } #i
     }",fill = TRUE)
@@ -105,8 +102,7 @@ sink()
 # Specify initial values for mu.alpha, sigma.alpha, and beta1
 inits <- function() list(mu.alpha = runif(1, -3, 3),
                          sigma.alpha = runif(1, 0, 5),
-                         mu = runif(1, -3, 3),
-			 beta1 = runif(1, -3, 3),
+                  			 beta1 = runif(1, -3, 3),
                          beta2 = runif(1, -3, 3),
                          beta3 = runif(1, -3, 3),
                          beta4 = runif(1, -3, 3),
@@ -115,21 +111,20 @@ inits <- function() list(mu.alpha = runif(1, -3, 3),
                          beta7 = runif(1, -3, 3),
                          beta8 = runif(1, -3, 3))
 # Monitored parameters
-params <- c('mu', 'beta1', 'beta2', 'beta3', 'beta4', 'beta5', 'beta6', 'beta7', 'beta8', 'alpha')
+params <- c('beta1', 'beta2', 'beta3', 'beta4', 'beta5', 'beta6', 'beta7', 'beta8')
 # MCMC specifications
-ni=81000; nt=10; nc=3
+ni=1000; nt=10; nc=3
 # for jags.parfit(), burn-in iterations = n.adapt + n.update
-n.adapt <- 500; n.update <- 500
+n.adapt <- 5; n.update <- 5
 nb <- n.adapt + n.update
 
-
 #### Non-parallel jags()
-# glmmOutput <- jags(data = jagsTestdata, 
-#                 inits = inits, 
-#                 parameters.to.save = params, 
-#                 model.file = "climate_glmm_model.jags", 
-#                 n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                 working.directory = getwd())    
+glmmOutput <- jags(data = jagsGLMMdata, 
+                   inits = inits, 
+                   parameters.to.save = params, 
+                   model.file = "potato_psyllid_glmm_model.jags", 
+                   n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
+                   working.directory = getwd())    
 
 
 #### Parallel JAGS
