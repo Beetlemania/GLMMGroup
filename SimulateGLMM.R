@@ -34,3 +34,7 @@ sim.glm<-simulateGLMM()
 sim.glm$data$Group <-factor(sim.glm$data$Group)
 glmm.fit <-glmer(Y~Group+(1|Block),family="poisson", data=sim.glm$data)
 summary(glmm.fit)
+
+### Attempt to Simulate with Nimble ###
+library
+
