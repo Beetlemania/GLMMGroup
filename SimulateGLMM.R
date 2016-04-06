@@ -26,7 +26,7 @@ simulateGLMM<-function(ngroup=2, nblock=4, reps.per.group = 20, alpha=7, sd.beta
   data$Y<-rpois(nsample, lambda=data$Eta) 
   
   return(list(data=data, nsample=nsample, alpha=alpha, beta=beta, r.block=r.block)) 
-    }
+}
 
 sim.glm<-simulateGLMM()
 head(sim.glm$data)
