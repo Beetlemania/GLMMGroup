@@ -158,4 +158,31 @@ source("SimulateGLMM.R")
 # simulateGLMM() produces a list, the first object is a data.frame
 sim.glm <- simulateGLMM()
 data <- sim.glm$data
+data$Group <- factor(data$Group)
+# Transform data into matrix with random effects (Block) as columns and treatments (Group) as rows
+countMatrix <- makeEcoDataMatrix(var = "Y", rep = "Group", reVar = "Block", data = data, fill = NA)
 
+sink("Poisson_GLMM_simulated.jags")
+cat("
+    model {    
+    ## Priors
+    
+    # For the block random effect
+    for(i in 1:nBlock) { 
+      alpha[i] ~ dnorm(0, sigma.alpha) 
+    }
+    sigma.alpha ~ dunif(0, 100)
+
+    # For the fixed effect factor
+    for(i in 1:nGroup){
+      Group[i] ~ dnorm(0, 0.001) # Group effect
+    }
+
+    # Likelihood
+    for (i in 1:n){ # i = replicate identity
+      Y[i] ~ dpois(lambda[i])  # Distribution for response
+      log(lambda[i]) <- beta1*[Group[i]] + # Group effect
+                        alpha[Block[i]] # random intercepts (one for each Block)
+    } #i
+    }",fill = TRUE)
+sink()
