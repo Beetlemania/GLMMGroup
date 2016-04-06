@@ -1,5 +1,5 @@
 # Intent: Simulate GLMM data
-simulateGLMM<-function(ngroup=2, nblock=4, reps.per.group = 100, alpha=7, sd.beta=2, sd=.01){
+simulateGLMM<-function(ngroup=2, nblock=4, reps.per.group = 20, alpha=7, sd.beta=2, sd=.01){
 
     # 100 is a lot! -Perry
    # generate numbers of samples
