@@ -9,6 +9,9 @@ lapply(my_packages, require, character.only=T)
 ## Data restructuring functions
 source("functions_glmm_analysis.R")
 
+#############################################################################################
+#### Analysis of historical potato psyllid count data
+#############################################################################################
 #### Load count data
 countDataList <- readRDS("potato_psyllid_count_data_for_GLMM.rds")
 countData <- countDataList[[2]]
@@ -33,7 +36,7 @@ countData <- countData[countData$count == 0,] %>%
 # Create a year-month variable
 countData$ymo <- paste(countData$year, countData$month, sep = "-")
 # Make a data matrix for the count (response) data
-countMatrix <- makeEcoDataMatrix("count")
+countMatrix <- makeEcoDataMatrix(var = "count")
 
 ## Make separate data matrices for the covariates, use standardized covariates
 # make standardized year and month
@@ -146,4 +149,13 @@ print(glmmOutput)
 # row.names(glmmResults) <- names(glmmdctab)
 # saveRDS(glmmResults, file = "climate_glmm_jags_out_params.rds")
 
+
+###############################################################################################
+#### Analysis of simulated data
+###############################################################################################
+
+source("SimulateGLMM.R")
+# simulateGLMM() produces a list, the first object is a data.frame
+sim.glm <- simulateGLMM()
+data <- sim.glm$data
 

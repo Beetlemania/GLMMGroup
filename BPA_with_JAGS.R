@@ -1,10 +1,10 @@
 #########################################################################
-GLMM Group 2016
+# GLMM Group 2016
 #########################################################################
 #
 # BPA with JAGS
 #
-# Based on the book "Bayesian population analysis using WinBUGS - a hierarchical perspective" by Marc Kéry & Michael Schaub (2012, Academic Press)
+# Based on the book "Bayesian population analysis using WinBUGS - a hierarchical perspective" by Marc K?ry & Michael Schaub (2012, Academic Press)
 #
 #########################################################################
 
@@ -14,8 +14,10 @@ GLMM Group 2016
 
 #########################################################################
 
-# Load packages
+# Remove all previously loaded objects; start with a clean slate
+rm(list = ls())
 
+# Load packages
 library(lattice)
 library(coda)
 library(R2WinBUGS)
@@ -25,7 +27,7 @@ library(R2jags)
 
 # Make sure that you have installed JAGS version 3.2.0
 
-setwd("C:/....")     # Optional
+#setwd("C:/Users/Adam/Documents/GitHub/GLMMGroup")     # Optional
 
 
 ##########################################################################
@@ -354,6 +356,7 @@ lines(Year, out3$BUGSoutput$mean$p, type = "l", lwd = 3, col = "blue")
 # 4. Introduction to random effects: Conventional Poisson GLMM for count data
 #
 ##############################################################################
+library(lme4)
 
 # 4.1. Introduction
 # 4.1.1. An example
@@ -3309,7 +3312,7 @@ hist(cjs.2$BUGSoutput$sims.list$mean.p, nclass = 30, col = "gray", main = "", xl
 abline(v = p[1], col = "red", lwd = 2)
  
 
-# 7.11. Analysis of a real data set: survival of female Leisler’s bats
+# 7.11. Analysis of a real data set: survival of female Leisler?s bats
 m.leisleri <- matrix(c(4,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
 0,5,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
 0,0,9,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
@@ -4070,7 +4073,7 @@ sink()
 
 # Function to create known latent states z
 known.state.ms <- function(ms, notseen){
-   # notseen: label for ‘not seen’
+   # notseen: label for ?not seen?
    state <- ms
    state[state==notseen] <- NA
    for (i in 1:dim(ms)[1]){
@@ -5131,7 +5134,7 @@ print(ms3, digits = 3)
 
 
 
-# 9.7. Real data example: the showy lady’s slipper
+# 9.7. Real data example: the showy lady?s slipper
 CH <- as.matrix(read.table("orchids.txt", sep=" ", header = F))
 n.occasions <- dim(CH)[2]
 
@@ -5857,7 +5860,7 @@ js.ran <- jags(jags.data, inits, parameters, "js-super-indran.jags", n.chains = 
 print(js.ran, digits = 3)
 
 
-# 10.7. Analysis of a real data set: survival, recruitment and population size of Leisler’s bats
+# 10.7. Analysis of a real data set: survival, recruitment and population size of Leisler?s bats
 # Specify model in BUGS language
 sink("js-tempran.jags")
 cat("
@@ -6941,12 +6944,12 @@ data.fn <- function(R = 200, T = 3, xmin = -1, xmax = 1, alpha0 = 1, alpha1 = 3,
    # Relationship detection prob - covariate
    p <- plogis(beta0 + beta1 * X)
 
-   # Make a ‘census’ (i.e., go out and count things)
+   # Make a ?census? (i.e., go out and count things)
    for (i in 1:T){
       y[,i] <- rbinom(n = R, size = N, prob = p)
       }
 
-   # Naïve regression
+   # Na?ve regression
    naive.pred <- exp(predict(glm(apply(y, 1, max) ~ X + I(X^2), family =   poisson)))
 
    # Plot features of the simulated system
@@ -6954,7 +6957,7 @@ data.fn <- function(R = 200, T = 3, xmin = -1, xmax = 1, alpha0 = 1, alpha1 = 3,
    plot(X, lam, main = "Expected abundance", xlab = "Covariate", ylab = "lambda", las = 1, type = "l", col = "red", lwd = 3, frame.plot = FALSE)
    plot(X, N, main = "Realised abundance", xlab = "Covariate", ylab = "N", las = 1, frame.plot = FALSE, col = "red", cex = 1.2)
    plot(X, p, ylim = c(0, 1), main = "Detection probability", xlab = "Covariate", ylab = "p", type = "l", col = "red", lwd = 3, las = 1, frame.plot = FALSE)
-   plot(X, naive.pred, main = "Actual counts \n and naïve regression", xlab = "Covariate", ylab = "Relative abundance", ylim = c(min(y), max(y)), type = "l", lty = 2, lwd = 4, col = "blue", las = 1, frame.plot = FALSE)
+   plot(X, naive.pred, main = "Actual counts \n and na?ve regression", xlab = "Covariate", ylab = "Relative abundance", ylim = c(min(y), max(y)), type = "l", lty = 2, lwd = 4, col = "blue", las = 1, frame.plot = FALSE)
 points(rep(X, T), y, col = "black", cex = 1.2)
 
    # Return stuff
@@ -7452,19 +7455,19 @@ data.fn <- function(R = 200, T = 3, xmin = -1, xmax = 1, alpha.psi = -1, beta.ps
 
    # Add Bernoulli noise: draw occurrence indicator z from Bernoulli(psi)
    z <- rbinom(n = R, size = 1, prob = psi)
-   occ.fs <- sum(z)	# Finite-sample occupancy (see Royle and Kéry 2007)
+   occ.fs <- sum(z)	# Finite-sample occupancy (see Royle and K?ry 2007)
 
    # Observation process
    # Relationship detection prob - covariate
    p <- plogis(alpha.p + beta.p * X)
 
-   # Make a ‘census’
+   # Make a ?census?
    p.eff <- z * p
    for (i in 1:T){
       y[,i] <- rbinom(n = R, size = 1, prob = p.eff)
       }
 
-   # Naïve regression
+   # Na?ve regression
    naive.pred <- plogis(predict(glm(apply(y, 1, max) ~ X + I(X^2), family = binomial)))
 
    # Plot features of the simulated system
